@@ -1,14 +1,21 @@
-version: 3.7
+version: "3.7"
 services:
   app:
     container_name: infodota_container
     build: .
     volumes:
-      - ./app
+      - ./:/app
     ports:
       - 80:80
   db:
     image: postgres:latest
     container_name: db_infodota
-    restart: unless-started
-    
+    restart: always
+    volumes:
+      - ./.postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
