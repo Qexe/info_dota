@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   app:
-    container_name: infodota_container
+    container_name: infodota_app
     build: .
     volumes:
       - ./:/app
