@@ -2,7 +2,6 @@ import json
 import requests
 import asyncio
 import asyncpg
-import settings
 from .constants import *
 from .settings import *
 from typing import Union
@@ -39,9 +38,9 @@ class Db:
         self.url = url
 
     async def record_request(self):
-        conn = await asyncpg.connect(host='localhost', port='5432', database='infodota_db', user='app', password='3226')
+        conn = await asyncpg.connect(host='db', port='5432', database='infodota_db', user='app', password='3226')
         main = (self.url, self.query_id, self.res.text)
         await conn.execute("INSERT INTO main_data (url, request_body, response) VALUES ($1,$2,$3);", main[0], main[1], main[2])
         metadata = (self.res.headers['date'], self.res.status_code, self.res.elapsed.total_seconds())
-        await conn.execute("INSERT INTO metadata (date, status, req_timing) VALUES ($1,$2,$3);", metadata[0], str(metadata[1]), str(metadata[2]))
+        await conn.execute("INSERT INTO metadata (datetime, status, req_timing) VALUES ($1,$2,$3);", metadata[0], str(metadata[1]), str(metadata[2]))
         await conn.close()
