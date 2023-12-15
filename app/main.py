@@ -38,7 +38,7 @@ class Db:
         self.url = url
 
     async def record_request(self):
-        conn = await asyncpg.connect(host='db', port='5432', database='infodota_db', user='app', password='3226')
+        conn = await asyncpg.connect(host='db', port='5432', database='infodota_db', user='postgres', password='postgres')
         main = (self.url, self.query_id, self.res.text)
         await conn.execute("INSERT INTO main_data (url, request_body, response) VALUES ($1,$2,$3);", main[0], main[1], main[2])
         metadata = (self.res.headers['date'], self.res.status_code, self.res.elapsed.total_seconds())
