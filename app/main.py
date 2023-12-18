@@ -4,43 +4,36 @@ import asyncio
 import asyncpg
 from .constants import *
 from .settings import *
-from typing import Union
 from fastapi import FastAPI
-from pydantic import BaseModel
+from .db import *
 
 app = FastAPI()
 
 
 @app.get("/players/{player_id}")
 async def get_player_info(player_id):
-    api_url = f"https://api.opendota.com/api/players/{player_id}"
-    res = requests.get(url=api_url, headers=HEADERS)
-    py_logger.info(f'From url {api_url}Status = > {res.status_code}')
-    await Db(url=api_url, query_id=player_id, res=res).record_request()
-    return res.json
-
-
+    if res := await Db(query_id=player_id).check_item():
+        py_logger.info(f'Find info about player id {player_id} in DB')
+        return res
+    else:
+        api_url = f"https://api.opendota.com/api/players/{player_id}"
+        res = requests.get(url=api_url, headers=HEADERS)
+        item = MainData(query_id=player_id, url=api_url, res=res)
+        py_logger.info(f'From url {api_url}Status = > {res.status_code}')
+        await Db(item).record_request()
+        return res.json()
+    # TODO: Вынести в отдельный метод
 
 @app.get("/matches/{match_id}")
 async def get_match_info(match_id):
-    api_url = f"https://api.opendota.com/api/matches/{match_id}"
-    res = requests.get(url=api_url, headers=HEADERS)
-    py_logger.info(f'From url {api_url} Status = > {res.status_code}')
-    await Db(url=api_url, query_id=match_id, res=res).record_request()
-    return res.json()
-
-
-class Db:
-
-    def __init__(self, query_id, res, url):
-        self.query_id = query_id
-        self.res = res
-        self.url = url
-
-    async def record_request(self):
-        conn = await asyncpg.connect(host='db', port='5432', database='infodota_db', user='postgres', password='postgres')
-        main = (self.url, self.query_id, self.res.text)
-        await conn.execute("INSERT INTO main_data (url, request_body, response) VALUES ($1,$2,$3);", main[0], main[1], main[2])
-        metadata = (self.res.headers['date'], self.res.status_code, self.res.elapsed.total_seconds())
-        await conn.execute("INSERT INTO metadata (datetime, status, req_timing) VALUES ($1,$2,$3);", metadata[0], str(metadata[1]), str(metadata[2]))
-        await conn.close()
+    if res := await Db(query_id=match_id).check_item():
+        py_logger.info(f'Find info about match id {match_id} in DB')
+        return res
+    else:
+        api_url = f"https://api.opendota.com/api/matches/{match_id}"
+        res = requests.get(url=api_url, headers=HEADERS)
+        item = MainData(query_id=match_id, url=api_url, res=res)
+        py_logger.info(f'From url {api_url} Status = > {res.status_code}')
+        await Db(item).record_request()
+        return res.json()
+    # TODO: Вынести в отдельный метод
