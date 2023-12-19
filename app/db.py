@@ -1,6 +1,6 @@
-import asyncio
 import asyncpg
 from pydantic import BaseModel
+import json
 
 
 class MainData(BaseModel):
@@ -11,17 +11,22 @@ class MainData(BaseModel):
 
 class Db:
 
-    def __init__(self, item=None, query_id=None):
-        self.item = item
+    item = None
+
+    def __init__(self, query_id=None):
         self.query_id = query_id
 
     async def check_item(self):
         conn = await asyncpg.connect(host='db', port='5432', database='infodota_db', user='postgres',
-                                      password='postgres')
+                                     password='postgres')
         # TODO: сделать одним коннектом для обоих методов
-        row = await conn.fetchrow(f'SELECT response FROM main_data WHERE main_data.request_body = $1;', self.query_id)
+        row = await conn.fetchval(f'SELECT response FROM main_data WHERE main_data.request_body = $1;', self.query_id)
         # TODO: изменить формат выдачи на json
-        return row
+        await conn.close()
+        if row:
+            return json.loads(row)
+        else:
+            return row
 
     async def record_request(self):
         conn = await asyncpg.connect(host='db', port='5432', database='infodota_db', user='postgres',
