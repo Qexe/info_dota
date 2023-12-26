@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  app:
+    container_name: infodota_app
+    build: .
+    volumes:
+      - /app:/app
+    ports:
+      - 80:80
+    depends_on:
+      - db
+  db:
+    image: postgres:latest
+    container_name: db_infodota
+    restart: always
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d  # Папка для скриптов инициализации
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: infodota_db
+      POSTGRES_PASSWORD: postgres
+    command: ["postgres", "-c", "wal_level=minimal", "-c", "max_wal_senders=0", "-c", "max_replication_slots=0"]
+    ports:
+      - 5432:5432

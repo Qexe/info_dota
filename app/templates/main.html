@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+    <style>
+        #find_matches {
+            width: 100px;
+            height: 15px;
+        }
+        #find_players {
+            width: 100px;
+            height: 15px;
+        }
+        #fnd_mtchs {
+            position: fixed;
+            top: 5%;
+            left: 20%;
+        }
+        #fnd_plrs {
+            position: fixed;
+            top: 5%;
+            right: 20%;
+        }
+    </style>
+</head>
+<body>
+    <script>
+    const FindMatches = () => {
+        const find_matches = document.getElementById("find_matches").value;
+        if (find_matches!== "") {
+            window.location.href = `/matches/${find_matches}`;
+            }
+        }
+
+    const FindPlayers = () => {
+        const find_players = document.getElementById("find_players").value;
+         if (find_players!== "") {
+            window.location.href = `/players/${find_players}`;
+            }
+    }
+    </script>
+    <div class="flex my-3 gap-5" id="fnd_mtchs">
+        <input id="find_matches" type="text" class="text-xl">
+        <button onclick="FindMatches()">Поиск по матчам</button>
+    </div>
+    <div class="flex my-3 gap-5" id="fnd_plrs">
+        <input id="find_players" type="text" class="text-xl">
+        <button onclick="FindPlayers()">Поиск по игрокам</button>
+    </div>
+</body>
+</html>
